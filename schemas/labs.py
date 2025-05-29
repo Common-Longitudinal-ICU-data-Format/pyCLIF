@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, model_validator
 from typing import Dict, Tuple
 
 
@@ -144,12 +144,14 @@ class Lab(BaseModel):
     lab_specimen_category: str  
     lab_loinc_code: str
 
-    @validator('lab_value_numeric')
-    def validate_lab_value_range(cls, v, values):
-        if 'lab_category' in values:
-            lab_category = values['lab_category']
-            if lab_category in LAB_VALUE_RANGES:
-                min_val, max_val = LAB_VALUE_RANGES[lab_category]
-                if not min_val <= v <= max_val:
-                    raise ValueError(f'Lab value {v} for {lab_category} must be between {min_val} and {max_val}')
-        return v
+    @model_validator(mode="after")
+    def validate_lab_value_range(cls, values):
+        lab_category = values.get('lab_category')
+        lab_value_numeric = values.get('lab_value_numeric')
+
+        min_val, max_val = LAB_VALUE_RANGES[lab_category]
+        
+        if not min_val <= lab_value_numeric <= max_val:
+            raise ValueError(f'Lab value {lab_value_numeric} for {lab_category} must be between {min_val} and {max_val}')
+        
+        return values
