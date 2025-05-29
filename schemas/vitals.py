@@ -46,4 +46,6 @@ class Vital(BaseModel):
         if not min_val <= vital_value <= max_val:
             raise ValueError(f'Vital value {vital_value} for {vital_category} must be between {min_val} and {max_val}')
         
-        return values
+        return values 
+    
+    --
